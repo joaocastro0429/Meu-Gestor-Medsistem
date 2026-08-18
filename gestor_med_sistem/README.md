@@ -21,7 +21,7 @@ Cada recurso de UUID simples oferece:
 
 | Verbo | Rota | Operação |
 |---|---|---|
-| GET | `/api/{recurso}` | Listar |
+| GET | `/api/{recurso}` | Listar todos |
 | GET | `/api/{recurso}/{id}` | Buscar por ID |
 | POST | `/api/{recurso}` | Criar |
 | PUT | `/api/{recurso}/{id}` | Substituir |
@@ -40,6 +40,15 @@ Os relacionamentos com chave composta usam os dois UUIDs na rota:
 | Filiais do usuário | `/api/user-branches/{userId}/{branchId}` |
 
 Esses recursos também aceitam GET, POST, PUT, PATCH e DELETE. POST usa apenas a rota base e recebe a chave composta no objeto `id`.
+
+### Parâmetros e payloads
+
+- `id`: UUID no caminho das rotas de recursos simples.
+- As rotas de relacionamento recebem dois UUIDs no caminho, com os nomes indicados na tabela acima.
+- Cada controller possui seu próprio `record Request` no final do arquivo, mostrando exatamente o corpo aceito em POST e PUT.
+- Os PATCHs foram limitados a ações simples, como alterar status, ativo ou habilitado.
+
+As listagens retornam um array JSON simples. Essa versão prioriza uma estrutura didática; paginação pode ser adicionada quando a quantidade de dados exigir.
 
 ## Exemplos
 

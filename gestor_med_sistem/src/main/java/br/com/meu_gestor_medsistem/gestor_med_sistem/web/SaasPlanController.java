@@ -1,6 +1,75 @@
 package br.com.meu_gestor_medsistem.gestor_med_sistem.web;
-import br.com.meu_gestor_medsistem.gestor_med_sistem.domain.SaasPlan; import br.com.meu_gestor_medsistem.gestor_med_sistem.repository.SaasPlanRepository; import br.com.meu_gestor_medsistem.gestor_med_sistem.service.CrudService; import tools.jackson.databind.ObjectMapper; import jakarta.validation.Validator; import org.springframework.web.bind.annotation.*;
-@RestController @RequestMapping("/api/plans")
-public class SaasPlanController extends AbstractCrudController<SaasPlan> {
- private final CrudService<SaasPlan, java.util.UUID> service; public SaasPlanController(SaasPlanRepository r,ObjectMapper m,Validator v){service=new CrudService<>(r,m,v,SaasPlan::setId);} protected CrudService<SaasPlan,java.util.UUID> service(){return service;}
+
+import br.com.meu_gestor_medsistem.gestor_med_sistem.domain.*;
+import br.com.meu_gestor_medsistem.gestor_med_sistem.repository.SaasPlanRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import java.math.BigDecimal;
+import java.util.*;
+
+@RestController
+@RequestMapping("/api/plans")
+public class SaasPlanController {
+    private final SaasPlanRepository repository;
+
+    public SaasPlanController(SaasPlanRepository repository) {
+        this.repository = repository;
+    }
+
+    @GetMapping
+    public List<SaasPlan> listar() {
+        return repository.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public SaasPlan buscar(@PathVariable UUID id) {
+        return encontrar(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public SaasPlan criar(@Valid @RequestBody Request body) {
+        return repository.save(preencher(new SaasPlan(), body));
+    }
+
+    @PutMapping("/{id}")
+    public SaasPlan atualizar(@PathVariable UUID id, @Valid @RequestBody Request body) {
+        return repository.save(preencher(encontrar(id), body));
+    }
+
+    @PatchMapping("/{id}/status")
+    public SaasPlan alterarStatus(@PathVariable UUID id, @Valid @RequestBody StatusRequest body) {
+        SaasPlan p = encontrar(id);
+        p.setStatus(body.status());
+        return repository.save(p);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluir(@PathVariable UUID id) {
+        repository.delete(encontrar(id));
+    }
+
+    private SaasPlan encontrar(UUID id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Plano não encontrado"));
+    }
+
+    private SaasPlan preencher(SaasPlan p, Request r) {
+        p.setName(r.name());
+        p.setDefaultPrice(r.defaultPrice());
+        p.setDurationDays(r.durationDays());
+        p.setStatus(r.status());
+        return p;
+    }
+
+    public record Request(@NotBlank String name, @NotNull @DecimalMin("0.00") BigDecimal defaultPrice,
+            @Positive int durationDays, @NotNull Status status) {
+    }
+
+    public record StatusRequest(@NotNull Status status) {
+    }
 }
