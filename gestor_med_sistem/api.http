@@ -1,0 +1,205 @@
+@baseUrl = http://localhost:8080/api
+
+### 1. Criar plano
+# @name createPlan
+POST {{baseUrl}}/plans
+Content-Type: application/json
+
+{
+  "name": "Plano Profissional",
+  "defaultPrice": 199.90,
+  "durationDays": 30,
+  "status": "ACTIVE"
+}
+
+### Listar planos
+GET {{baseUrl}}/plans
+
+### Buscar plano criado
+GET {{baseUrl}}/plans/{{createPlan.response.body.$.id}}
+
+### Alterar somente o preço do plano
+PATCH {{baseUrl}}/plans/{{createPlan.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "defaultPrice": 229.90
+}
+
+### Substituir os dados do plano
+PUT {{baseUrl}}/plans/{{createPlan.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "name": "Plano Profissional Plus",
+  "defaultPrice": 249.90,
+  "durationDays": 30,
+  "status": "ACTIVE"
+}
+
+### 2. Criar módulo
+# @name createModule
+POST {{baseUrl}}/modules
+Content-Type: application/json
+
+{
+  "code": "FINANCEIRO",
+  "name": "Financeiro",
+  "status": "ACTIVE"
+}
+
+### Listar módulos
+GET {{baseUrl}}/modules
+
+### 3. Vincular módulo ao plano
+POST {{baseUrl}}/plan-modules
+Content-Type: application/json
+
+{
+  "id": {
+    "planId": "{{createPlan.response.body.$.id}}",
+    "moduleId": "{{createModule.response.body.$.id}}"
+  }
+}
+
+### Listar vínculos de planos e módulos
+GET {{baseUrl}}/plan-modules
+
+### Buscar vínculo específico
+GET {{baseUrl}}/plan-modules/{{createPlan.response.body.$.id}}/{{createModule.response.body.$.id}}
+
+### 4. Criar empresa
+# @name createCompany
+POST {{baseUrl}}/companies
+Content-Type: application/json
+
+{
+  "legalName": "Clínica Saúde Ltda",
+  "tradeName": "Clínica Saúde",
+  "cnpj": {
+    "value": "12345678000190"
+  },
+  "status": "ACTIVE"
+}
+
+### Listar empresas
+GET {{baseUrl}}/companies
+
+### Buscar empresa criada
+GET {{baseUrl}}/companies/{{createCompany.response.body.$.id}}
+
+### 5. Criar configurações da empresa
+POST {{baseUrl}}/company-settings
+Content-Type: application/json
+
+{
+  "companyId": "{{createCompany.response.body.$.id}}",
+  "timezone": "America/Sao_Paulo",
+  "locale": "pt-BR",
+  "currency": "BRL",
+  "settings": {
+    "theme": "light",
+    "notifications": true
+  }
+}
+
+### 6. Criar assinatura
+# @name createSubscription
+POST {{baseUrl}}/subscriptions
+Content-Type: application/json
+
+{
+  "companyId": "{{createCompany.response.body.$.id}}",
+  "planId": "{{createPlan.response.body.$.id}}",
+  "price": 199.90,
+  "startsOn": "2026-08-18",
+  "expiresOn": "2026-09-17",
+  "status": "ACTIVE"
+}
+
+### Listar assinaturas
+GET {{baseUrl}}/subscriptions
+
+### 7. Habilitar módulo para empresa
+POST {{baseUrl}}/company-modules
+Content-Type: application/json
+
+{
+  "id": {
+    "companyId": "{{createCompany.response.body.$.id}}",
+    "moduleId": "{{createModule.response.body.$.id}}"
+  },
+  "enabled": true
+}
+
+### Desabilitar módulo para empresa
+PATCH {{baseUrl}}/company-modules/{{createCompany.response.body.$.id}}/{{createModule.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "enabled": false
+}
+
+### 8. Criar filial
+# @name createBranch
+POST {{baseUrl}}/branches
+Content-Type: application/json
+
+{
+  "companyId": "{{createCompany.response.body.$.id}}",
+  "code": "MATRIZ",
+  "name": "Unidade Matriz",
+  "active": true
+}
+
+### Listar filiais
+GET {{baseUrl}}/branches
+
+### 9. Criar usuário
+# @name createUser
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "companyId": "{{createCompany.response.body.$.id}}",
+  "type": "ADMIN",
+  "name": "Administrador",
+  "email": {
+    "value": "admin@clinicasaude.com.br"
+  },
+  "status": "ACTIVE"
+}
+
+### Listar usuários
+GET {{baseUrl}}/users
+
+### 10. Dar permissões ao usuário
+POST {{baseUrl}}/user-permissions
+Content-Type: application/json
+
+{
+  "id": {
+    "userId": "{{createUser.response.body.$.id}}",
+    "moduleId": "{{createModule.response.body.$.id}}"
+  },
+  "canView": true,
+  "canCreate": true,
+  "canEdit": true,
+  "canDelete": false,
+  "canApprove": true,
+  "canManage": false
+}
+
+### 11. Vincular usuário à filial
+POST {{baseUrl}}/user-branches
+Content-Type: application/json
+
+{
+  "id": {
+    "userId": "{{createUser.response.body.$.id}}",
+    "branchId": "{{createBranch.response.body.$.id}}"
+  }
+}
+
+### Listar vínculos usuário/filial
+GET {{baseUrl}}/user-branches
