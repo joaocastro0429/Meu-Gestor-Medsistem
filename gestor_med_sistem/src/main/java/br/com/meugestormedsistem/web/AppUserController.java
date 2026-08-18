@@ -8,6 +8,7 @@ import br.com.meugestormedsistem.service.AppUserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,8 +35,8 @@ public class AppUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AppUser criar(@Valid @RequestBody Request body) {
-        return service.save(preencher(new AppUser(), body));
+    public AppUser criar(@Valid @RequestBody CreateRequest body) {
+        return service.criar(preencher(new AppUser(), body), body.password());
     }
 
     @PutMapping("/{id}")
@@ -73,6 +74,22 @@ public class AppUserController {
     public record Request(@NotNull UUID companyId, @NotNull UserType type, @NotBlank String name,
             @NotBlank @jakarta.validation.constraints.Email String email,
             @NotNull UserStatus status) {
+    }
+
+    public record CreateRequest(@NotNull UUID companyId, @NotNull UserType type,
+            @NotBlank String name,
+            @NotBlank @jakarta.validation.constraints.Email String email,
+            @NotNull UserStatus status,
+            @NotBlank @Size(min = 8, max = 72) String password) {
+    }
+
+    private AppUser preencher(AppUser u, CreateRequest r) {
+        u.setCompanyId(r.companyId());
+        u.setType(r.type());
+        u.setName(r.name());
+        u.setEmail(new Email(r.email()));
+        u.setStatus(r.status());
+        return u;
     }
 
     public record StatusRequest(@NotNull UserStatus status) {

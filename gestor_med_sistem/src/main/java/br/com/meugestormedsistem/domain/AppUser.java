@@ -1,5 +1,6 @@
 package br.com.meugestormedsistem.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -32,4 +33,7 @@ public class AppUser {
     @NotNull
     @Enumerated(EnumType.STRING)
     private UserStatus status;
+    @JsonIgnore
+    @Column(name = "password_hash", length = 100)
+    private String passwordHash;
 }

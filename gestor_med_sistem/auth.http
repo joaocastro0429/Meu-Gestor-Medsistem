@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:8080/api
+
+### 1. Criar empresa inicial (público)
+# @name createAuthCompany
+POST {{baseUrl}}/companies
+Content-Type: application/json
+
+{
+  "legalName": "Empresa Autenticação Ltda",
+  "tradeName": "Empresa Autenticação",
+  "cnpj": "98765432000199",
+  "status": "ACTIVE"
+}
+
+### 2. Criar usuário inicial com senha (público)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "companyId": "{{createAuthCompany.response.body.$.id}}",
+  "type": "ADMIN",
+  "name": "Administrador",
+  "email": "admin@gestormed.com.br",
+  "status": "ACTIVE",
+  "password": "Admin@123"
+}
+
+### 3. Fazer login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gestormed.com.br",
+  "password": "Admin@123"
+}
+
+### 4. Testar uma rota protegida
+GET {{baseUrl}}/modules
+Authorization: Bearer {{login.response.body.$.accessToken}}

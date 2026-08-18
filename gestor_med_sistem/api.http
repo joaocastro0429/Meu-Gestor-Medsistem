@@ -1,8 +1,10 @@
 @baseUrl = http://localhost:8080/api
+@token = COLE_AQUI_O_ACCESS_TOKEN_GERADO_NO_AUTH_HTTP
 
 ### 1. Criar plano
 # @name createPlan
 POST {{baseUrl}}/plans
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -14,12 +16,15 @@ Content-Type: application/json
 
 ### Listar planos
 GET {{baseUrl}}/plans
+Authorization: Bearer {{token}}
 
 ### Buscar plano criado
 GET {{baseUrl}}/plans/{{createPlan.response.body.$.id}}
+Authorization: Bearer {{token}}
 
 ### Alterar somente o status do plano
 PATCH {{baseUrl}}/plans/{{createPlan.response.body.$.id}}/status
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -28,6 +33,7 @@ Content-Type: application/json
 
 ### Substituir os dados do plano
 PUT {{baseUrl}}/plans/{{createPlan.response.body.$.id}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -40,6 +46,7 @@ Content-Type: application/json
 ### 2. Criar módulo (execute somente se FINANCEIRO ainda não existir)
 # @name createModule
 POST {{baseUrl}}/modules
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -50,14 +57,17 @@ Content-Type: application/json
 
 ### Listar módulos (use esta rota para localizar o FINANCEIRO existente)
 GET {{baseUrl}}/modules
+Authorization: Bearer {{token}}
 
 ### Buscar FINANCEIRO pelo código (funciona mesmo se ele foi criado anteriormente)
 # @name getModule
 GET {{baseUrl}}/modules/code/FINANCEIRO
+Authorization: Bearer {{token}}
 
 ### Exemplo de outro módulo com código diferente
 # @name createStockModule
 POST {{baseUrl}}/modules
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -68,6 +78,7 @@ Content-Type: application/json
 
 ### 3. Vincular módulo ao plano
 POST {{baseUrl}}/plan-modules
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -77,9 +88,11 @@ Content-Type: application/json
 
 ### Listar vínculos de planos e módulos
 GET {{baseUrl}}/plan-modules
+Authorization: Bearer {{token}}
 
 ### Buscar vínculo específico
 GET {{baseUrl}}/plan-modules/{{createPlan.response.body.$.id}}/{{getModule.response.body.$.id}}
+Authorization: Bearer {{token}}
 
 ### 4. Criar empresa
 # @name createCompany
@@ -95,12 +108,15 @@ Content-Type: application/json
 
 ### Listar empresas
 GET {{baseUrl}}/companies
+Authorization: Bearer {{token}}
 
 ### Buscar empresa criada
 GET {{baseUrl}}/companies/{{createCompany.response.body.$.id}}
+Authorization: Bearer {{token}}
 
 ### 5. Criar configurações da empresa
 POST {{baseUrl}}/company-settings
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -117,6 +133,7 @@ Content-Type: application/json
 ### 6. Criar assinatura
 # @name createSubscription
 POST {{baseUrl}}/subscriptions
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -130,9 +147,11 @@ Content-Type: application/json
 
 ### Listar assinaturas
 GET {{baseUrl}}/subscriptions
+Authorization: Bearer {{token}}
 
 ### 7. Habilitar módulo para empresa
 POST {{baseUrl}}/company-modules
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -143,6 +162,7 @@ Content-Type: application/json
 
 ### Desabilitar módulo para empresa
 PATCH {{baseUrl}}/company-modules/{{createCompany.response.body.$.id}}/{{getModule.response.body.$.id}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -152,6 +172,7 @@ Content-Type: application/json
 ### 8. Criar filial
 # @name createBranch
 POST {{baseUrl}}/branches
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -163,6 +184,7 @@ Content-Type: application/json
 
 ### Listar filiais
 GET {{baseUrl}}/branches
+Authorization: Bearer {{token}}
 
 ### 9. Criar usuário
 # @name createUser
@@ -174,14 +196,17 @@ Content-Type: application/json
   "type": "ADMIN",
   "name": "Administrador",
   "email": "admin@clinicasaude.com.br",
-  "status": "ACTIVE"
+  "status": "ACTIVE",
+  "password": "Admin@123"
 }
 
 ### Listar usuários
 GET {{baseUrl}}/users
+Authorization: Bearer {{token}}
 
 ### 10. Dar permissões ao usuário
 POST {{baseUrl}}/user-permissions
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -197,6 +222,7 @@ Content-Type: application/json
 
 ### 11. Vincular usuário à filial
 POST {{baseUrl}}/user-branches
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -206,3 +232,4 @@ Content-Type: application/json
 
 ### Listar vínculos usuário/filial
 GET {{baseUrl}}/user-branches
+Authorization: Bearer {{token}}
