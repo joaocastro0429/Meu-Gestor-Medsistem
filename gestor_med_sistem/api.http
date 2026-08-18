@@ -18,12 +18,12 @@ GET {{baseUrl}}/plans
 ### Buscar plano criado
 GET {{baseUrl}}/plans/{{createPlan.response.body.$.id}}
 
-### Alterar somente o preço do plano
-PATCH {{baseUrl}}/plans/{{createPlan.response.body.$.id}}
+### Alterar somente o status do plano
+PATCH {{baseUrl}}/plans/{{createPlan.response.body.$.id}}/status
 Content-Type: application/json
 
 {
-  "defaultPrice": 229.90
+  "status": "INACTIVE"
 }
 
 ### Substituir os dados do plano
@@ -37,7 +37,7 @@ Content-Type: application/json
   "status": "ACTIVE"
 }
 
-### 2. Criar módulo
+### 2. Criar módulo (execute somente se FINANCEIRO ainda não existir)
 # @name createModule
 POST {{baseUrl}}/modules
 Content-Type: application/json
@@ -48,25 +48,38 @@ Content-Type: application/json
   "status": "ACTIVE"
 }
 
-### Listar módulos
+### Listar módulos (use esta rota para localizar o FINANCEIRO existente)
 GET {{baseUrl}}/modules
+
+### Buscar FINANCEIRO pelo código (funciona mesmo se ele foi criado anteriormente)
+# @name getModule
+GET {{baseUrl}}/modules/code/FINANCEIRO
+
+### Exemplo de outro módulo com código diferente
+# @name createStockModule
+POST {{baseUrl}}/modules
+Content-Type: application/json
+
+{
+  "code": "ESTOQUE",
+  "name": "Controle de estoque",
+  "status": "ACTIVE"
+}
 
 ### 3. Vincular módulo ao plano
 POST {{baseUrl}}/plan-modules
 Content-Type: application/json
 
 {
-  "id": {
-    "planId": "{{createPlan.response.body.$.id}}",
-    "moduleId": "{{createModule.response.body.$.id}}"
-  }
+  "planId": "{{createPlan.response.body.$.id}}",
+  "moduleId": "{{getModule.response.body.$.id}}"
 }
 
 ### Listar vínculos de planos e módulos
 GET {{baseUrl}}/plan-modules
 
 ### Buscar vínculo específico
-GET {{baseUrl}}/plan-modules/{{createPlan.response.body.$.id}}/{{createModule.response.body.$.id}}
+GET {{baseUrl}}/plan-modules/{{createPlan.response.body.$.id}}/{{getModule.response.body.$.id}}
 
 ### 4. Criar empresa
 # @name createCompany
@@ -76,9 +89,7 @@ Content-Type: application/json
 {
   "legalName": "Clínica Saúde Ltda",
   "tradeName": "Clínica Saúde",
-  "cnpj": {
-    "value": "12345678000190"
-  },
+  "cnpj": "12345678000190",
   "status": "ACTIVE"
 }
 
@@ -125,15 +136,13 @@ POST {{baseUrl}}/company-modules
 Content-Type: application/json
 
 {
-  "id": {
-    "companyId": "{{createCompany.response.body.$.id}}",
-    "moduleId": "{{createModule.response.body.$.id}}"
-  },
+  "companyId": "{{createCompany.response.body.$.id}}",
+  "moduleId": "{{getModule.response.body.$.id}}",
   "enabled": true
 }
 
 ### Desabilitar módulo para empresa
-PATCH {{baseUrl}}/company-modules/{{createCompany.response.body.$.id}}/{{createModule.response.body.$.id}}
+PATCH {{baseUrl}}/company-modules/{{createCompany.response.body.$.id}}/{{getModule.response.body.$.id}}
 Content-Type: application/json
 
 {
@@ -164,9 +173,7 @@ Content-Type: application/json
   "companyId": "{{createCompany.response.body.$.id}}",
   "type": "ADMIN",
   "name": "Administrador",
-  "email": {
-    "value": "admin@clinicasaude.com.br"
-  },
+  "email": "admin@clinicasaude.com.br",
   "status": "ACTIVE"
 }
 
@@ -178,10 +185,8 @@ POST {{baseUrl}}/user-permissions
 Content-Type: application/json
 
 {
-  "id": {
-    "userId": "{{createUser.response.body.$.id}}",
-    "moduleId": "{{createModule.response.body.$.id}}"
-  },
+  "userId": "{{createUser.response.body.$.id}}",
+  "moduleId": "{{getModule.response.body.$.id}}",
   "canView": true,
   "canCreate": true,
   "canEdit": true,
@@ -195,10 +200,8 @@ POST {{baseUrl}}/user-branches
 Content-Type: application/json
 
 {
-  "id": {
-    "userId": "{{createUser.response.body.$.id}}",
-    "branchId": "{{createBranch.response.body.$.id}}"
-  }
+  "userId": "{{createUser.response.body.$.id}}",
+  "branchId": "{{createBranch.response.body.$.id}}"
 }
 
 ### Listar vínculos usuário/filial

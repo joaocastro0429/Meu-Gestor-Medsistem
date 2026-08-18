@@ -21,7 +21,7 @@ Cada recurso de UUID simples oferece:
 
 | Verbo | Rota | Operação |
 |---|---|---|
-| GET | `/api/{recurso}` | Listar |
+| GET | `/api/{recurso}` | Listar todos |
 | GET | `/api/{recurso}/{id}` | Buscar por ID |
 | POST | `/api/{recurso}` | Criar |
 | PUT | `/api/{recurso}/{id}` | Substituir |
@@ -41,6 +41,49 @@ Os relacionamentos com chave composta usam os dois UUIDs na rota:
 
 Esses recursos também aceitam GET, POST, PUT, PATCH e DELETE. POST usa apenas a rota base e recebe a chave composta no objeto `id`.
 
+### Parâmetros e payloads
+
+- `id`: UUID no caminho das rotas de recursos simples.
+- As rotas de relacionamento recebem dois UUIDs no caminho, com os nomes indicados na tabela acima.
+- Cada controller possui seu próprio `record Request` no final do arquivo, mostrando exatamente o corpo aceito em POST e PUT.
+- Os PATCHs foram limitados a ações simples, como alterar status, ativo ou habilitado.
+
+As listagens retornam um array JSON simples. Essa versão prioriza uma estrutura didática; paginação pode ser adicionada quando a quantidade de dados exigir.
+
+### Respostas de sucesso
+
+As respostas retornam o recurso diretamente:
+
+```json
+{
+  "id": "UUID",
+  "name": "Exemplo",
+  "status": "ACTIVE"
+}
+```
+
+As listagens retornam um array e as exclusões usam `204 No Content`, sem corpo.
+
+### Respostas de erro
+
+Todos os erros seguem o mesmo contrato:
+
+```json
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Existem campos inválidos",
+  "instance": "/api/modules",
+  "fields": {
+    "code": "não deve estar em branco"
+  }
+}
+```
+
+Principais status: `400` para payload ou parâmetro inválido, `404` para recurso inexistente,
+`409` para duplicidade/conflito, `405` para verbo HTTP não suportado e `500` para falha inesperada.
+
 ## Exemplos
 
 Criar plano:
@@ -51,12 +94,12 @@ curl -X POST http://localhost:8080/api/plans \
   -d '{"name":"Profissional","defaultPrice":199.90,"durationDays":30,"status":"ACTIVE"}'
 ```
 
-Atualizar somente o preço:
+Atualizar somente o status:
 
 ```bash
-curl -X PATCH http://localhost:8080/api/plans/UUID_DO_PLANO \
+curl -X PATCH http://localhost:8080/api/plans/UUID_DO_PLANO/status \
   -H 'Content-Type: application/json' \
-  -d '{"defaultPrice":229.90}'
+  -d '{"status":"INACTIVE"}'
 ```
 
 Vincular um módulo ao plano:
@@ -64,7 +107,7 @@ Vincular um módulo ao plano:
 ```bash
 curl -X POST http://localhost:8080/api/plan-modules \
   -H 'Content-Type: application/json' \
-  -d '{"id":{"planId":"UUID_DO_PLANO","moduleId":"UUID_DO_MODULO"}}'
+  -d '{"planId":"UUID_DO_PLANO","moduleId":"UUID_DO_MODULO"}'
 ```
 
 Os valores de enum são enviados em maiúsculas, conforme as classes em `domain`: por exemplo `ACTIVE`, `INACTIVE`, `TRIAL`, `OWNER` e `INVITED`.
