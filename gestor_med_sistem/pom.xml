@@ -8,7 +8,7 @@
 		<version>4.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>br.com.meu_gestor_medsistem</groupId>
+	<groupId>br.com.meugestormedsistem</groupId>
 	<artifactId>gestor_med_sistem</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>gestor_med_sistem</name>
